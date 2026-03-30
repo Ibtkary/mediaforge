@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mediastore | رحلة التكامل والتعلم</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #0a0a0c;
+            --bg-surface: #131316;
+            --bg-surface-hover: #1c1c21;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.5);
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --border: #27272a;
+            --glass-bg: rgba(19, 19, 22, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        code, pre {
+            font-family: 'JetBrains Mono', monospace;
+            direction: ltr;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .hero-blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(to right, var(--primary-glow), var(--accent-glow));
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, -50px) scale(1.1); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .badge-pro {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to left, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            animation: bounce 2s infinite;
+            color: var(--text-muted);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        /* Journey Layout */
+        .journey-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Right Side: Text Steps */
+        .journey-steps {
+            padding: 4rem 2rem 4rem 4rem;
+        }
+
+        .step {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        .step-num {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-num::before {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .step h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .step p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Terminology Cards */
+        .term-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-right: 3px solid var(--accent);
+        }
+
+        .term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .term-en {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .term-ar {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Left Side: Sticky Visualizer */
+        .journey-visuals {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 600px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(20px) scale(0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Custom Visuals */
+        .blob-shape {
+            width: 200px;
+            height: 200px;
+            background: #27272a;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--text-dim);
+            transition: all 0.5s;
+        }
+
+        .processing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .proc-node {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .proc-node i {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .variants-visual {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .variant-box {
+            position: absolute;
+            border: 2px dashed var(--primary);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+            transition: all 0.5s;
+        }
+
+        .v-original { width: 100%; height: 100%; top: 0; left: 0; }
+        .v-large { width: 75%; height: 75%; bottom: 0; right: 0; border-color: var(--accent); color: var(--accent); background: rgba(139, 92, 246, 0.05); }
+        .v-medium { width: 50%; height: 50%; bottom: 0; right: 0; border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .v-thumb { width: 25%; height: 25%; bottom: 0; right: 0; border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+
+        /* Code Integration Section */
+        .integration-section {
+            padding: 6rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .code-block-wrapper {
+            background: #1e1e24; /* slight contrast from surface */
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 3rem;
+        }
+
+        .code-header {
+            background: rgba(0,0,0,0.3);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .mac-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mac-dots div {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .mac-dots .red { background: #ef4444; }
+        .mac-dots .yellow { background: #f59e0b; }
+        .mac-dots .green { background: #10b981; }
+
+        pre {
+            margin: 0;
+            padding: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .journey-container {
+                grid-template-columns: 1fr;
+            }
+            .journey-visuals {
+                position: relative;
+                height: 50vh;
+                top: auto;
+                padding: 1rem;
+            }
+            .visualizer {
+                height: 100%;
+            }
+            .journey-steps {
+                padding: 2rem 1rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-blob"></div>
+        <div class="hero-content">
+            <div class="badge-pro">
+                <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                دليل تفاعلي متقدم
+            </div>
+            <h1>افهم واكتشف قوة Mediastore</h1>
+            <p>ليس مجرد مكتبة لرفع الصور، بل نظام متكامل ذكي صُمم لمعالجة، ضغط، إيقاف التكرار، وتقديم الصور للمستخدمين بسرعة البرق عبر الـ Cloud. لنأخذك في رحلة لتعرف كيف يعمل.</p>
+        </div>
+        <div class="scroll-indicator">
+            <i data-lucide="mouse"></i>
+        </div>
+    </header>
+
+    <!-- The Journey -->
+    <main class="journey-container">
+        
+        <!-- Right Side: Explanation -->
+        <div class="journey-steps">
+            
+            <!-- Step 1 -->
+            <div class="step" data-step="1">
+                <div class="step-num">الخطوة الأولى</div>
+                <h2>الاستقبال والفحص الأمني</h2>
+                <p>تبدأ الرحلة عندما يقوم المستخدم (عبر تطبيق Flutter) باختيار صورة وإرسالها إلى الـ API الخاص بك. هنا تتدخل مكتبة Mediastore لتلعب دور حارس الأمن.</p>
+                
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">نوع الملف الحقيقي</span>
+                        <span class="term-en">MIME Type Validation</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">النظام لا يثق بامتداد الملف (مثل .jpg). بل يقوم بقراءة محتوى الملف الفعلي ليتأكد أنه صورة حقيقية وآمنة، وليس ملفاً خبيثاً متنكراً.</p>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">الحد الأقصى للحجم</span>
+                        <span class="term-en">Size Capping</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">يتم الفحص المبدئي لحجم الملف لمنع استهلاك ذاكرة الخادم (Memory Exhaustion) إذا حاول أحدهم رفع ملف ضخم جداً.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step" data-step="2">
+                <div class="step-num">الخطوة الثانية</div>
+                <h2>الذكاء في المعالجة</h2>
+                <p>بعد التأكد من أمان الصورة، تبدأ عملية تحسينها. النظام لا يحفظ الصورة كما هي أبداً، بل يحولها للنسخة الأكثر كفاءة.</p>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">البصمة الرقمية للمنع التكرار</span>
+                        <span class="term-en">Content Hash (Dedup)</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">عبر خوارزمية SHA-256، نصنع "بصمة" للصورة. إذا رفع المستخدم نفس الصورة مرتين، المكتبة تكتشف ذلك برمجياً وتتخطى الرفع لتوفير المساحة والتكاليف.</p>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">التحويل للصيغة الحديثة</span>
+                        <span class="term-en">WebP Encoding</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">يتم تحويل صيغ (JPEG, PNG) إلى WebP. النتيجة؟ حجم أصغر بنسبة تصل لـ 88% مع الحفاظ التام على جودة الصورة الأصلية. توفير هائل في الـ Bandwidth.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step" data-step="3">
+                <div class="step-num">الخطوة الثالثة</div>
+                <h2>خلق النسخ (Variants)</h2>
+                <p>صفحة تفاصيل المنتج تختلف عن قائمة البحث المصغرة. لماذا نجبر التطبيق على تحميل صورة بدقة 2000 بيكسل لعرض أيقونة صغيرة؟</p>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">النسخ المتعددة</span>
+                        <span class="term-en">Image Variants</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">
+                        تقص المكتبة الصورة تلقائياً لـ 4 أحجام مدروسة:
+                        <br>• <strong>Thumb (150px):</strong> فائقة الخفة للقوائم.
+                        <br>• <strong>Medium (400px):</strong> لكروت المنتجات.
+                        <br>• <strong>Large (800px):</strong> لتفاصيل المنتج.
+                        <br>• <strong>Original:</strong> للعرض بملء الشاشة وتكبير التفاصيل.
+                    </p>
+                </div>
+                <div class="term-card" style="border-color: var(--success)">
+                    <div class="term-header">
+                        <span class="term-ar">تخطي النسخ الذكي</span>
+                        <span class="term-en">Smart Variant Skip</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">إذا تم رفع صورة صغيرة جداً (مثلاً 100 بيكسل)، النظام ذكي بما يكفي لعدم إنشاء نسخ (Large و Medium) لأنها بلا فائدة!</p>
+                </div>
+            </div>
+
+             <!-- Step 4 -->
+            <div class="step" data-step="4">
+                <div class="step-num">الخطوة الرابعة</div>
+                <h2>الرفع والحفظ السحابي</h2>
+                <p>الآن أصبحت لدينا 4 ملفات WebP خفيفة للغاية وجاهزة للرفع. تقوم المكتبة بنقلها بأمان إلى السحابة.</p>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">التخزين السحابي</span>
+                        <span class="term-en">Cloud Storage (S3 / Bunny)</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">ترسل الملفات إلى خوادم تخزين مخصصة (مثل AWS S3 أو Bunny). قاعدة البيانات الخاصة بك (DB) لا تحفظ الصور نهائياً، بل تحفظ فقط "رابط السحابة" (Storage Path) لتقليل العبء على الخادم.</p>
+                </div>
+                
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">منظومة الإعادة التلقائية</span>
+                        <span class="term-en">Retry Mechanism</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">لو انقطع الاتصال للحظة مع السحابة أثناء الرفع، المكتبة تقوم بالمحاولة مجدداً (Retries) بصمت لضمان عدم ضياع عمل المستخدم.</p>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step" data-step="5">
+                <div class="step-num">الخطوة الخامسة</div>
+                <h2>التوصيل السريع والآمن</h2>
+                <p>عندما يفتح المستخدم التطبيق ويريد رؤية المنتجات، نحن لا نعطيه الرابط المباشر للمخزن ابداً.</p>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">شبكة التوصيل السريع</span>
+                        <span class="term-en">CDN Delivery</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">يتم تقديم الصور من (Content Delivery Network)، وهي أجهزة كمبيوتر موزعة حول العالم. لتصل الصورة للمستخدم من السيرفر الأقرب له جغرافياً في أجزاء من الثانية.</p>
+                </div>
+
+                <div class="term-card">
+                    <div class="term-header">
+                        <span class="term-ar">الروابط الآمنة المؤقتة</span>
+                        <span class="term-en">Signed URLs</span>
+                    </div>
+                    <p style="font-size: 0.95rem; margin:0">المكتبة تولد روابط مشفرة تنتهي صلاحيتها (مثلاً بعد ساعة). إذا تم اختراق بيانات التطبيق، الروابط المسروقة ستصبح بلا قيمة لأنها منتهية الصلاحية.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Left Side: Sticky Visualizer -->
+        <div class="journey-visuals">
+            <div class="visualizer">
+                
+                <!-- Slide 1: Upload & Validate -->
+                <div class="visual-slide" id="vis-1">
+                    <i data-lucide="shield-check" style="width: 64px; height: 64px; color: var(--success); margin-bottom: 2rem;"></i>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">حائط الصد الأول</h3>
+                    <div style="background: rgba(16,185,129,0.1); border: 1px solid var(--success); padding: 1rem; border-radius: 0.5rem; color: var(--success); font-family: monospace;">
+                        > File: product.jpg<br>
+                        > Sniffing Magic Bytes...<br>
+                        > Type: image/jpeg [OK]<br>
+                        > Size: 2.1 MB <= 10 MB [OK]
+                    </div>
+                </div>
+
+                <!-- Slide 2: Processing & WebP -->
+                <div class="visual-slide" id="vis-2">
+                    <div class="processing-grid">
+                        <div class="proc-node">
+                            <i data-lucide="fingerprint" style="width: 32px; height: 32px;"></i>
+                            <div style="font-size: 0.8rem; color: var(--text-muted)">SHA-256 Hash</div>
+                            <div style="font-family: monospace; font-size: 0.7rem; color: var(--primary); margin-top: 5px;">e477ecfe...</div>
+                        </div>
+                        <div class="proc-node">
+                            <i data-lucide="file-archive" style="width: 32px; height: 32px;"></i>
+                            <div style="font-size: 0.8rem; color: var(--text-muted)">WebP Encode</div>
+                            <div style="font-size: 0.8rem; font-weight: bold; color: var(--success); margin-top: 5px;">- 85% Size</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Variants -->
+                <div class="visual-slide" id="vis-3">
+                    <div class="variants-visual">
+                        <div class="variant-box v-original">Original 2000px</div>
+                        <div class="variant-box v-large">Large 800px</div>
+                        <div class="variant-box v-medium">Medium 400px</div>
+                        <div class="variant-box v-thumb">Thumb 150px</div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: Cloud Upload -->
+                <div class="visual-slide" id="vis-4">
+                    <i data-lucide="cloud-upload" style="width: 64px; height: 64px; color: var(--primary); margin-bottom: 2rem;"></i>
+                    <div style="width: 100%; max-width: 250px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-muted);">
+                            <span>Uploading package...</span>
+                            <span>100%</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 100%; height: 100%; background: var(--primary); animation: progress 2s ease-in-out;"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">Saving to AWS S3 / Bunny Storage</p>
+                </div>
+
+                 <!-- Slide 5: Delivery -->
+                 <div class="visual-slide" id="vis-5">
+                    <i data-lucide="link" style="width: 64px; height: 64px; color: var(--accent); margin-bottom: 2rem;"></i>
+                    <div style="background: rgba(139,92,246,0.1); border: 1px solid var(--accent); padding: 1rem; border-radius: 0.5rem; width: 100%;">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-bottom: 5px;">Generated Signed URL:</div>
+                        <div style="font-family: monospace; font-size: 0.75rem; color: var(--text-main); word-break: break-all;">
+                            https://cdn.app.com/imgs/prod1.webp<br>
+                            <span style="color: var(--accent);">?token=a1b2c3d4e5...</span><br>
+                            <span style="color: var(--success);">&expires=1711670400</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Code Integration -->
+    <section class="integration-section">
+        <h2 class="section-title">كيف تكتب الكود؟</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            التكامل مع Mediastore مصمم ليكون نظيفاً ومباشراً ولا يسبب تلوثاً في بنية (Clean Architecture) الخاصة بك.
+        </p>
+
+        <div class="code-block-wrapper">
+            <div class="code-header">
+                <div class="mac-dots">
+                    <div class="red"></div>
+                    <div class="yellow"></div>
+                    <div class="green"></div>
+                </div>
+                <span>1. الإعداد المبدئي (media/client.go)</span>
+            </div>
+            <pre><code class="language-go">package media
+
+import (
+    "os"
+    "github.com/Ibtkary/mediaforge"
+)
+
+// تهيئة العميل مرة واحدة عند اقلاع السيرفر
+func NewClient() (*mediaforge.Client, error) {
+    return mediaforge.New(mediaforge.Config{
+        StorageZone:    os.Getenv("BUNNY_ZONE"),
+        StorageAPIKey:  os.Getenv("BUNNY_API_KEY"),
+        CDNBaseURL:     os.Getenv("BUNNY_CDN_URL"),
+        CDNSecurityKey: os.Getenv("BUNNY_CDN_KEY"),
+    })
+}</code></pre>
+        </div>
+
+        <div class="code-block-wrapper">
+            <div class="code-header">
+                <div class="mac-dots">
+                    <div class="red"></div>
+                    <div class="yellow"></div>
+                    <div class="green"></div>
+                </div>
+                <span>2. رفع الصورة وحفظها (service/image_service.go)</span>
+            </div>
+            <pre><code class="language-go">func (s *ImageService) UploadProductImage(ctx context.Context, tenantID string, data []byte) (*ProductImage, error) {
+    // 1. المكتبة تقوم بكل السحر (Validate, Hash, Convert, Resize, Upload)
+    asset, err := s.media.Upload(ctx, tenantID, data)
+    if err != nil {
+        return nil, fmt.Errorf("upload processing failed: %w", err)
+    }
+
+    // 2. نحفظ البيانات الوصفية (الرابط والأبعاد) في قاعدة البيانات الخاصة بنا
+    img := &ProductImage{
+        StoragePath: asset.StoragePath, // الرابط النسبي في السحابة
+        ContentHash: asset.ContentHash, // لحماية النظام من التكرار
+        Variants:    asset.Variants,    // مسارات وخيارات الأحجام المختلفة
+    }
+    s.repo.Save(ctx, img)
+
+    return img, nil
+}</code></pre>
+        </div>
+
+        <div class="code-block-wrapper">
+            <div class="code-header">
+                <div class="mac-dots">
+                    <div class="red"></div>
+                    <div class="yellow"></div>
+                    <div class="green"></div>
+                </div>
+                <span>3. توليد روابط العرض (API Layer)</span>
+            </div>
+            <pre><code class="language-go">func (s *ImageService) GetProductImageURLs(storagePath string) (*mediaforge.SignedURLSet, error) {
+    // توليد روابط لكل الأحجام صالحة لمدة ساعة واحدة فقط لأمان صارم
+    return s.media.GetSignedURL(
+        storagePath, 
+        []string{"thumb", "medium", "large"}, 
+        1 * time.Hour,
+    )
+}
+
+// التطبيق سيستلم JSON كالتالي:
+// {
+//    "original": "https://cdn.xxx/...webp?token=...",
+//    "thumb": "https://cdn.xxx/..._thumb.webp?token=..."
+// }</code></pre>
+        </div>
+
+    </section>
+
+    <footer style="padding: 3rem; text-align: center; border-top: 1px solid var(--border); color: var(--text-dim); margin-top: 4rem;">
+        <p>مصمم بعناية ليجعل إدارة الوسائط بسيطة، آمنة، واحترافية.</p>
+        <p style="font-family: monospace; margin-top: 1rem; font-size: 0.8rem;">Mediastore &copy; 2026</p>
+    </footer>
+
+    <script>
+        // Init Icons
+        lucide.createIcons();
+        // Init Code Highlight
+        hljs.highlightAll();
+
+        // Scroll Logic for Journey
+        const steps = document.querySelectorAll('.step');
+        const slides = document.querySelectorAll('.visual-slide');
+
+        // Setup Intersection Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '-30% 0px -50% 0px', // Trigger when step is near middle of screen
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Get step number
+                    const stepNum = entry.target.getAttribute('data-step');
+                    
+                    // Activate Text Step
+                    steps.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+
+                    // Activate Corresponding Visual
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    document.getElementById(`vis-${stepNum}`).classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        steps.forEach(step => observer.observe(step));
+    </script>
+</body>
+</html>

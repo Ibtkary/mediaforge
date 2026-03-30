@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mediaforge | The Ultimate Documentation Guide</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+    <!-- Mermaid -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #050507;
+            --bg-surface: #0e0e12;
+            --bg-surface-hover: #16161d;
+            --primary: #6366f1;       /* Indigo 500 */
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #0ea5e9;     /* Sky 500 */
+            --accent: #a855f7;        /* Purple 500 */
+            --success: #10b981;       /* Emerald 500 */
+            --warning: #f59e0b;       /* Amber 500 */
+            --danger: #ef4444;        /* Rose 500 */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #475569;
+            --border: #1e293b;
+            --grid-color: rgba(255, 255, 255, 0.02);
+            --font-en: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-en);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.8;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+
+        code { font-family: var(--font-code); font-size: 0.9em; }
+        h1, h2, h3, h4, h5 { font-weight: 800; color: #fff; line-height: 1.3; letter-spacing: -0.02em; }
+        a { color: var(--primary); text-decoration: none; transition: 0.2s; }
+        a:hover { color: var(--secondary); }
+
+        /* General Layout */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: rgba(14, 14, 18, 0.9);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            padding: 2.5rem 2rem;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+        .logo i { color: var(--primary); }
+        .nav-group { margin-bottom: 2rem; }
+        .nav-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 1rem;
+            color: var(--text-muted);
+            border-radius: 8px;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.03); color: #fff; }
+        .nav-link.active {
+            color: #fff;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+        }
+        .nav-link i { width: 18px; height: 18px; }
+
+        /* Language Switcher */
+        .lang-switcher { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+        .lang-btn { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.75rem; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: var(--font-en); font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .lang-btn:hover { border-color: var(--primary); background: var(--bg-surface-hover); }
+        .lang-btn i { color: var(--primary); }
+
+        /* Main Content */
+        .main-content { padding: 0; max-width: 100%; position: relative; }
+        section { padding: 6rem 5rem; border-bottom: 1px solid var(--border); scroll-margin-top: 2rem; }
+        
+        .section-header { margin-bottom: 4rem; }
+        .section-header h2 { font-size: 2.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; }
+        .section-header h2 i { color: var(--primary); width: 40px; height: 40px; }
+        .section-header p { font-size: 1.25rem; color: var(--text-muted); max-width: 800px; }
+
+        /* Hero */
+        .hero { min-height: 80vh; display: flex; flex-direction: column; justify-content: center; position: relative; text-align: left; }
+        .hero-blob { position: absolute; width: 600px; height: 600px; background: var(--primary-glow); filter: blur(120px); top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; border-radius: 50%; opacity: 0.5; }
+        .hero h1 { font-size: 4.5rem; margin-bottom: 1.5rem; background: linear-gradient(to bottom right, #ffffff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.35rem; color: var(--text-muted); max-width: 800px; margin: 0 0 3rem 0; }
+        .hero-badges { display: flex; gap: 1rem; justify-content: flex-start; margin-bottom: 2rem; font-family: var(--font-code); font-size: 0.85rem; }
+        .hero-badge { background: var(--bg-surface-hover); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 99px; display: flex; align-items: center; gap: 0.5rem; }
+        .hero-badge.pkg { color: var(--primary); border-color: rgba(99,102,241,0.3); }
+        .hero-badge.std { color: var(--success); border-color: rgba(16,185,129,0.3); }
+
+        /* Split Journey Logic */
+        .journey-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; position: relative; }
+        .journey-text { padding-bottom: 20vh; }
+        .journey-visual { position: sticky; top: 4rem; height: calc(100vh - 8rem); display: flex; align-items: center; justify-content: center; }
+        
+        .step-card { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; opacity: 0.2; transition: opacity 0.5s; padding-left: 2rem; }
+        .step-card.active { opacity: 1; }
+        .step-num { color: var(--primary); font-family: var(--font-code); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; }
+        .step-card h3 { font-size: 2.2rem; margin-bottom: 1rem; }
+        
+        .term-box { background: var(--bg-surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border-left: 3px solid var(--accent); }
+        .term-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-direction: row-reverse; }
+        .term-ar { font-weight: 700; color: #fff; font-size: 1.1rem; }
+        .term-en { font-family: var(--font-code); color: var(--accent); font-size: 0.85rem; }
+
+        .visual-screen { width: 100%; height: 500px; background: #0a0a0c; border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(0,0,0,0.8); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .v-slide { position: absolute; inset: 0; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.5s ease; width: 100%; }
+        .v-slide.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .console-output { font-family: var(--font-code); background: transparent; color: var(--text-muted); font-size: 0.95rem; width: 100%; line-height: 1.6; }
+        .console-output .ok { color: var(--success); }
+        .console-output .warn { color: var(--warning); }
+        .console-output .highlight { color: #fff; }
+
+        /* Code & Terminals */
+        .code-block { background: #0f111a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .code-header { background: rgba(255,255,255,0.03); padding: 0.75rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-code); font-size: 0.85rem; color: var(--text-muted); flex-direction: row-reverse; }
+        .mac-dots { display: flex; gap: 8px; flex-direction: row-reverse; }
+        .mac-dots div { width: 12px; height: 12px; border-radius: 50%; }
+        .mac-dots .red { background: #ef4444; } .mac-dots .yellow { background: #f59e0b; } .mac-dots .green { background: #10b981; }
+        pre { margin: 0; padding: 1.5rem; }
+        .inline-code { background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: var(--font-code); color: var(--secondary); font-size: 0.9em; }
+
+        /* Tabs System */
+        .tabs { margin-bottom: 2rem; }
+        .tabs-header { display: flex; gap: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); padding: 0.75rem 1.5rem; cursor: pointer; border-bottom: 2px solid transparent; font-family: var(--font-en); font-weight: 700; font-size: 1.1rem; outline: none; transition: 0.2s;}
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-pane { display: none; animation: fadeIn 0.3s ease; }
+        .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Information Callouts */
+        .callout { display: flex; gap: 1rem; padding: 1.5rem; border-radius: 12px; background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.2); margin: 1.5rem 0; line-height: 1.6; }
+        .callout.warning { background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2); }
+        .callout.success { background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2); }
+        .callout i { color: var(--secondary); flex-shrink: 0; margin-top: 2px; }
+        .callout.warning i { color: var(--warning); }
+        .callout.success i { color: var(--success); }
+        .callout strong { display: block; margin-bottom: 0.25rem; font-size: 1.1rem; }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; margin-bottom: 2rem; border-radius: 12px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; background: var(--bg-surface); text-align: left; }
+        th { background: rgba(255,255,255,0.02); padding: 1.25rem; color: #fff; font-weight: 700; border-bottom: 1px solid var(--border); }
+        td { padding: 1.25rem; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+        td code { background: rgba(0,0,0,0.3); padding: 0.2rem 0.4rem; border-radius: 4px; color: var(--primary); }
+
+        /* Architecture Containers */
+        .arch-diagram { background: var(--bg-base); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); box-shadow: inset 0 0 20px rgba(0,0,0,0.5); margin-bottom: 2rem; display: flex; justify-content: center; }
+
+        /* Utility Grids */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+
+        .feature-box { background: var(--bg-surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 12px; transition: 0.2s; }
+        .feature-box:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .feature-box i { color: var(--primary); width: 32px; height: 32px; margin-bottom: 1rem; }
+        .feature-box h4 { margin-bottom: 0.5rem; font-size: 1.2rem; }
+
+        /* Lightbox Zoom Feature */
+        .lightbox {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: 0.3s ease;
+        }
+        .lightbox.active { opacity: 1; visibility: visible; }
+        .lightbox-content {
+            width: 95vw; max-height: 95vh; overflow: auto;
+            background: var(--bg-surface); padding: 3rem;
+            border-radius: 12px; border: 1px solid var(--border);
+            position: relative;
+        }
+        .lightbox-close {
+            position: fixed; top: 2rem; right: 2rem;
+            background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger);
+            color: var(--danger); border-radius: 50%; width: 48px; height: 48px;
+            cursor: pointer; z-index: 10000; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lightbox-close:hover { background: var(--danger); color: #fff; }
+        .arch-diagram { position: relative; cursor: zoom-in; transition: 0.2s; }
+        .arch-diagram:hover { border-color: var(--primary); box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.2); }
+        .zoom-hint {
+            position: absolute; bottom: 1.5rem; right: 1.5rem;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--border);
+            padding: 0.5rem 1rem; border-radius: 99px; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            opacity: 0; transition: 0.3s; pointer-events: none; color: #fff;
+        }
+        .arch-diagram:hover .zoom-hint { opacity: 1; }
+        .arch-diagram svg { width: 100% !important; max-width: 100%; height: auto !important; }
+
+        @media (max-width: 1200px) {
+            .app-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            section { padding: 4rem 2rem; }
+            .hero h1 { font-size: 3rem; }
+            .journey-split { grid-template-columns: 1fr; }
+            .journey-visual { position: relative; height: auto; top: 0; margin-bottom: 2rem; }
+            .step-card { min-height: auto; padding-right: 0; padding-bottom: 3rem; opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="sparkles"></i>
+                Mediaforge
+            </div>
+
+            <div class="lang-switcher">
+                <a href="index.html" class="lang-btn">
+                    <i data-lucide="globe"></i> View in Arabic
+                </a>
+            </div>
+            
+            <nav id="navbar">
+                <div class="nav-group">
+                    <div class="nav-label">Overview</div>
+                    <a href="#hero" class="nav-link active"><i data-lucide="home"></i> Introduction</a>
+                    <a href="#journey" class="nav-link"><i data-lucide="route"></i> Data Flow Journey</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-label">Integration</div>
+                    <a href="#install" class="nav-link"><i data-lucide="download"></i> Installation & Setup</a>
+                    <a href="#usage" class="nav-link"><i data-lucide="terminal"></i> Practical Usage</a>
+                    <a href="#variants" class="nav-link"><i data-lucide="layers"></i> Variants Architecture</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-label">Advanced</div>
+                    <a href="#advanced" class="nav-link"><i data-lucide="settings-2"></i> Resource Management</a>
+                    <a href="#architecture" class="nav-link"><i data-lucide="cpu"></i> Architecture & ADR</a>
+                    <a href="#api" class="nav-link"><i data-lucide="book-open"></i> API Reference</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Hero -->
+            <section id="hero" class="hero">
+                <div class="hero-blob"></div>
+                <div class="hero-badges">
+                    <div class="hero-badge pkg"><i data-lucide="package"></i> Package: github.com/Ibtkary/mediaforge</div>
+                    <div class="hero-badge std"><i data-lucide="layout-template"></i> Built on Clean Architecture</div>
+                </div>
+                <h1>Supreme Media Processing,<br>with Absolute Purity</h1>
+                <p>
+                    <strong>Mediaforge</strong> transcends being a mere upload module; it's a robust Go-based engine. It receives user media, passes it through rigorous security checkpoints, eradicates redundant data, and enforces an 88% bandwidth reduction. It then dynamically scales images into adaptive dimensions, securely centralizes them, and delivers them via cryptography-signed, ephemeral URLs.
+                </p>
+                <div class="grid-3" style="max-width: 1000px; margin: 3rem 0 0 0;">
+                    <div class="feature-box">
+                        <i data-lucide="zap"></i>
+                        <h4>WebP Compression Armor</h4>
+                        <p class="text-muted">Guaranteed exceptional bandwidth reduction without compromising image integrity or clarity.</p>
+                    </div>
+                    <div class="feature-box">
+                        <i data-lucide="shield-check"></i>
+                        <h4>Secure CDN Delivery</h4>
+                        <p class="text-muted">A rock-solid system for generating temporary Signed URLs, thwarting data theft and bandwidth hijacking.</p>
+                    </div>
+                    <div class="feature-box">
+                        <i data-lucide="layout-grid"></i>
+                        <h4>Cloud Storage Agnostic</h4>
+                        <p class="text-muted">Flexible infrastructure designed to seamlessly integrate with AWS S3 or Bunny.net without altering business logic.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Journey (Conceptual) -->
+            <section id="journey">
+                <div class="section-header">
+                    <h2><i data-lucide="route"></i> Data Flow Anatomy</h2>
+                    <p>An anatomical look at what actually happens behind the scenes; from the moment bytes stream in, to their radiant display on the end-client (Flutter).</p>
+                </div>
+
+                <div class="journey-split">
+                    <!-- Text Steps -->
+                    <div class="journey-text">
+                        <div class="step-card active" data-vis="1">
+                            <span class="step-num">Phase 1</span>
+                            <h3>Security Checkpoints & Deep Validation</h3>
+                            <div class="term-box">
+                                <div class="term-header"><span class="term-en">Magic Bytes validation</span></div>
+                                <p>How do we establish trust? The system ignores superficial network extensions and deep-dives into authentic byte signatures (Magic Bytes). Should a file harbor malicious code beneath an image guise, the operation is preemptively aborted.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="step-card" data-vis="2">
+                            <span class="step-num">Phase 2</span>
+                            <h3>Redundancy Eradication & Extreme Compression</h3>
+                            <div class="term-box" style="border-left-color: var(--warning)">
+                                <div class="term-header"><span class="term-en">Content Hash (SHA-256)</span></div>
+                                <p>A unique cryptographic digest is extracted based solely on spatial content. Consequently, even if users repeatedly upload the identical image, the system intercepts it, avoiding reckless storage inflation.</p>
+                            </div>
+                            <div class="term-box" style="border-left-color: var(--success)">
+                                <div class="term-header"><span class="term-en">Image Encoding Engine</span></div>
+                                <p>Radical size miniaturization. The system parses heavyweight JPEG structures and transpiles them into optimized WebP formats, accelerating mobile application performance manifold with minimal footprint.</p>
+                            </div>
+                        </div>
+
+                        <div class="step-card" data-vis="3">
+                            <span class="step-num">Phase 3</span>
+                            <h3>Intelligent Adaptive Generation</h3>
+                            <div class="term-box" style="border-left-color: var(--secondary)">
+                                <div class="term-header"><span class="term-en">Smart Variants Generation</span></div>
+                                <p>The engine prevents resource hemorrhaging caused by dispatching monolithic images to miniature UI bounds. Instead, it parallelizes the cloning of the original into three distinct variants, catering seamlessly to diverse layout demands.</p>
+                            </div>
+                        </div>
+
+                        <div class="step-card" data-vis="4">
+                            <span class="step-num">Phase 4</span>
+                            <h3>Cloud Transit & Proactive Defense</h3>
+                            <div class="term-box" style="border-left-color: var(--danger)">
+                                <div class="term-header"><span class="term-en">Uploading & Signed URLs</span></div>
+                                <p>The payload is dispatched to S3 buckets or Bunny vaults according to your prescribed architecture. The operation culminates in generating encrypted access tokens that decay over time, eliminating unauthorized access vectors.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualizer -->
+                    <div class="journey-visual">
+                        <div class="visual-screen">
+                            <!-- Visual Slide 1 -->
+                            <div class="v-slide active" id="v-1">
+                                <i data-lucide="shield-alert" style="width: 80px; height: 80px; color: var(--success); margin-bottom: 2rem;"></i>
+                                <div class="console-output">
+                                    > Receiving Payload...<span class="ok">OK</span><br>
+                                    > Deep File Inspection (Magic Bytes)<br>
+                                    > Header Checksum: <span class="highlight">FF D8 FF E0 (JPEG)</span><br>
+                                    > Integrity Size: 2.4 MB (Limits: < 10 MB) <span class="ok">PASS</span><br>
+                                    > Pre-validation Protocol Successful.
+                                </div>
+                            </div>
+                            <!-- Visual Slide 2 -->
+                            <div class="v-slide" id="v-2">
+                                <i data-lucide="fingerprint" style="width: 80px; height: 80px; color: var(--warning); margin-bottom: 2rem;"></i>
+                                <div class="console-output">
+                                    > Deduplication Engine Initialized...<br>
+                                    > Executing SHA-256 Digest Strategy<br>
+                                    > Cryptographic Output: <span class="warn">e477ecfedf5a8ec6a...</span><br>
+                                    > Engaging CWebP Compression Binary...<br>
+                                    > Compression Result: <span class="ok">Payload shrank from 2.4MB to 134KB (-94%)</span>
+                                </div>
+                            </div>
+                            <!-- Visual Slide 3 -->
+                            <div class="v-slide" id="v-3">
+                                <i data-lucide="layers" style="width: 80px; height: 80px; color: var(--secondary); margin-bottom: 2rem;"></i>
+                                <div style="display: flex; gap: 1rem; margin-top: 1rem; width: 100%; justify-content: center;">
+                                    <div style="width: 60px; height: 60px; background: rgba(14,165,233,0.2); border: 1px solid var(--secondary); border-radius: 8px; display: flex; align-items:flex-end; padding:0.5rem; font-size: 0.7rem; font-family: var(--font-code);">150px</div>
+                                    <div style="width: 100px; height: 100px; background: rgba(14,165,233,0.2); border: 1px solid var(--secondary); border-radius: 8px; display: flex; align-items:flex-end; padding:0.5rem; font-size: 0.7rem; font-family: var(--font-code);">400px</div>
+                                    <div style="width: 140px; height: 140px; background: rgba(14,165,233,0.2); border: 1px solid var(--secondary); border-radius: 8px; display: flex; align-items:flex-end; padding:0.5rem; font-size: 0.7rem; font-family: var(--font-code);">800px</div>
+                                </div>
+                                <p style="margin-top: 2rem; font-family: var(--font-code); color: var(--text-dim);">Forking Parallel Variants [Thumb, Medium, Large]</p>
+                            </div>
+                             <!-- Visual Slide 4 -->
+                             <div class="v-slide" id="v-4">
+                                <i data-lucide="cloud-lightning" style="width: 80px; height: 80px; color: var(--primary); margin-bottom: 2rem;"></i>
+                                <div class="console-output">
+                                    > Sequencing Uploads [Original, Large, Medium, Thumb]<br>
+                                    > S3 Storage Backbone Sync... <span class="ok">100%</span><br>
+                                    > Invoking Signature Middleware...<br>
+                                    <span style="color:#fff; font-size:0.85rem; word-break:break-all;">https://cdn.xyz.com/a.webp<span style="color:var(--danger)">?sig=x8k&expires=1794508800</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Installation -->
+            <section id="install">
+                <div class="section-header">
+                    <h2><i data-lucide="download"></i> Bootstrapping: Installation & Setup</h2>
+                    <p>Designed to break free from vendor lock-in (Agnostic). Import the core engine footprint, then graft the adapter corresponding your target cloud environment.</p>
+                </div>
+
+                <div class="callout warning">
+                    <i data-lucide="alert-triangle"></i>
+                    <div>
+                        <strong>Mandatory Engineering Prerequisites</strong>
+                        This system dictates a minimum runtime of <code class="inline-code">Go 1.25+</code>. Furthermore, it implicitly depends on OS-level sub-processes for WebP compression, thus necessitating the prior installation of the <code class="inline-code">cwebp</code> binary (via <code>brew install webp</code> or <code>apt install webp</code>).
+                    </div>
+                </div>
+
+                <div class="code-block" style="margin-bottom: 3rem;">
+                    <div class="code-header">
+                        <span>Terminal Workspace</span>
+                        <div class="mac-dots"><div class="green"></div><div class="yellow"></div><div class="red"></div></div>
+                    </div>
+                    <pre><code class="language-bash"># Fetch the fundamental Core Engine
+go get github.com/Ibtkary/mediaforge
+
+# If routing towards AWS S3, you must fetch its specific provider extension:
+go get github.com/Ibtkary/mediaforge/providers/s3</code></pre>
+                </div>
+
+                <h3 style="margin-top:2rem; margin-bottom:1rem; color: var(--primary);">Initialization Deployment Strategy</h3>
+                <p style="color:var(--text-muted); margin-bottom: 2rem;">Adhering strictly to Clean Architecture paradigms, the bootstrap sequence is intended to execute once during server warmup, paving the way for seamless Dependency Injection right across your service layers.</p>
+
+                <!-- Tabs System for Setup -->
+                <div class="tabs">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="switchTab(event, 'bunny')">Bunny.net Native Engine</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'aws')">AWS S3 Enterprise Engine</button>
+                    </div>
+                    
+                    <div id="bunny" class="tab-pane active">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>infrastructure/media/client.go</span>
+                                <div class="mac-dots"><div class="green"></div><div class="yellow"></div><div class="red"></div></div>
+                            </div>
+                            <pre><code class="language-go">func SetupBunnyEngine() (*mediaforge.Client, error) {
+    // The streamlined startup configuration for Bunny setup
+    return mediaforge.New(mediaforge.Config{
+        StorageZone:    os.Getenv("BUNNY_ZONE"),
+        StorageAPIKey:  os.Getenv("BUNNY_API_KEY"),
+        CDNBaseURL:     os.Getenv("BUNNY_CDN_URL"),
+        CDNSecurityKey: os.Getenv("BUNNY_CDN_KEY"),
+    })
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <div id="aws" class="tab-pane">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <span>infrastructure/media/client.go</span>
+                                <div class="mac-dots"><div class="green"></div><div class="yellow"></div><div class="red"></div></div>
+                            </div>
+                            <pre><code class="language-go">import (
+    "github.com/aws/aws-sdk-go-v2/config"
+    "github.com/aws/aws-sdk-go-v2/service/s3"
+    "github.com/Ibtkary/mediaforge"
+    s3provider "github.com/Ibtkary/mediaforge/providers/s3"
+)
+
+func SetupS3Engine() (*mediaforge.Client, error) {
+    // 1. Generate the standard AWS environment client
+    awsCfg, _ := config.LoadDefaultConfig(context.Background())
+    s3Client := s3.NewFromConfig(awsCfg)
+    bucket := os.Getenv("S3_BUCKET")
+
+    // 2. Hydrate the abstracted interfaces required by the Mediaforge Engine
+    storage := s3provider.NewStorage(s3Client, bucket)
+    signer := s3provider.NewSigner(s3.NewPresignClient(s3Client), bucket)
+
+    // 3. Encapsulate preparations by injecting Functional Options
+    return mediaforge.NewClient(storage, signer,
+        mediaforge.WithMaxFileSize(10 * 1024 * 1024), // Capacity cap: 10MB
+        mediaforge.WithVariants(mediaforge.DefaultVariants()),
+    )
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Usage Guide -->
+            <section id="usage">
+                <div class="section-header">
+                    <h2><i data-lucide="terminal"></i> The Pragmatic Integration Manual</h2>
+                    <p>Three lines of code confer absolute mastery over the asset lifecycle. This is how engineering leverage is applied concisely via a clean footprint.</p>
+                </div>
+
+                <div class="callout success">
+                    <i data-lucide="lightbulb"></i>
+                    <div>
+                        <strong>Architectural Boundary Standard</strong>
+                        The engine shoulders all heavy lifting for uploads, transformations, and URL formatting, but it <b>resides strictly outside the database layer</b>. Your operational duty is limited to capturing the yield (Asset) and persisting the <code>StoragePath</code> as a durable pointer in your relational tables (e.g., `product_images`).
+                    </div>
+                </div>
+
+                <h3 style="margin-top:2rem; margin-bottom:1rem; color: var(--primary);">1. The Ingestion Pipeline (Upload)</h3>
+                <div class="code-block">
+                    <pre><code class="language-go">// Direct pass-through routing for in-memory byte arrays:
+asset, err := client.Upload(ctx, "tenant-id-or-store1", imageBytes)
+
+// Core resource alternative to circumvent memory spikes (Streaming capability):
+asset, err := client.UploadReader(ctx, "store1", multipartStreamFile)
+
+/* Execution yields a tangible struct (PendingAsset) packed with metadata:
+   asset.StoragePath  (The organic cloud pointer)
+   asset.ContentHash  (The cryptographic tissue digest)
+   asset.Variants     (The generated variants ready for deployment)
+   Your subsequent task is to immortalize this map in your persistency engine.
+*/</code></pre>
+                </div>
+
+                <h3 style="margin-top:3rem; margin-bottom:1rem; color: var(--secondary);">2. Secure Dispatch Protocols (Signed URLs)</h3>
+                <div class="code-block">
+                    <pre><code class="language-go">// When the client service petitions to retrieve visual assets:
+urls, err := client.GetSignedURL(
+    storagePath,                            // The retrieved historical pointer
+    []string{"thumb", "medium", "large"},   // Targeted dimension constraints
+    2 * time.Hour,                          // The projected expiration TTL (2 hours)
+)
+
+// Dispatch the resolution mapping to the mobile boundary:
+response := map[string]string{
+    "full_image_hd": urls.Original,          // Bound by a temporal signature shield
+    "preview_icon":  urls.Variants["thumb"], // Distilled icon for instant rendering
+}
+</code></pre>
+                </div>
+
+                <h3 style="margin-top:3rem; margin-bottom:1rem; color: var(--danger);">3. Self-Destruct & Scrub Protocols (Deletion)</h3>
+                <div class="code-block">
+                    <pre><code class="language-go">// When the end-user mandates an entity purge, the excision methods are invoked ruthlessly:
+results, err := client.Delete(ctx, "store1", "imagehash_xyz99.webp", []string{"thumb", "medium", "large"})
+
+// The system verifies the obliteration of the anchor file and its cluster to thwart cloud pollution.
+</code></pre>
+                </div>
+
+            </section>
+
+            <!-- Variants Guide -->
+            <section id="variants">
+                <div class="section-header">
+                    <h2><i data-lucide="layers"></i> Variants Architecture</h2>
+                    <p>Generating 4 duplicates of a singular source isn't technical luxury; it forms an imperative response to safeguard mobile client stability and inject fluid UX.</p>
+                </div>
+
+                <table class="table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Variant Class</th>
+                            <th>Dimensional Constraints</th>
+                            <th>Expected Weight (WebP)</th>
+                            <th>Architectural Intent</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code style="color:var(--text-main)">Original</code></td>
+                            <td>Inherits source template (Max Cap: 8000x8000)</td>
+                            <td>45KB - 100KB</td>
+                            <td>The pristine image subjected to internal WebP encoding devoid of cropping. Only invoked when the user prompts for a <b>Full Screen Zoom-in</b>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>large</code></td>
+                            <td>Upper Threshold: 800px width</td>
+                            <td>~ 35KB</td>
+                            <td>Designed for detail spotlight and commodity inspection screens. Immense dimensions coupled with rapid payload delivery.</td>
+                        </tr>
+                        <tr>
+                            <td><code>medium</code></td>
+                            <td>Upper Threshold: 400px width</td>
+                            <td>~ 15KB</td>
+                            <td>Engineered for carousel displays or tabular warehouse inventory grids.</td>
+                        </tr>
+                        <tr>
+                            <td><code>thumb</code></td>
+                            <td>Upper Threshold: 150px width</td>
+                            <td>~ 3KB</td>
+                            <td>Extremely diminished iconic fragments; backing drop-down menus and trading baskets at microsecond latency levels.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Advanced Config -->
+            <section id="advanced">
+                <div class="section-header">
+                    <h2><i data-lucide="settings-2"></i> Advanced Controls & Resource Optimization</h2>
+                    <p>When cloud transit overhead evolves into a bottleneck, the engine exposes these manipulation levers to subvert heavy throughput latency.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="term-box" style="border-left-color: var(--success)">
+                        <h4 style="color:#fff; margin-bottom: 0.5rem">1. Redundancy Excision (Dedup)</h4>
+                        <p class="text-muted" style="margin-bottom: 1rem;">Executing <code>WithDedup(true)</code> prompts the engine to deploy a reconnaissance task ensuring the submitted image footprint doesn't already exist. If affirmed, it circumvents the network upload layer entirely.</p>
+                    </div>
+                    <div class="term-box" style="border-left-color: var(--warning)">
+                        <h4 style="color:#fff; margin-bottom: 0.5rem">2. Adaptive Smart Skip</h4>
+                        <p class="text-muted" style="margin-bottom: 1rem;">Armed with <code>WithSmartVariantSkip(true)</code>, when the system encounters an under-dimensioned image (e.g., 100x100), it preemptively suppresses the generation of larger variants to conserve CPU cycles.</p>
+                    </div>
+                    <div class="term-box" style="border-left-color: var(--primary)">
+                        <h4 style="color:#fff; margin-bottom: 0.5rem">3. Lazy Generation</h4>
+                        <p class="text-muted" style="margin-bottom: 1rem;">The <code>WithLazyVariants(true)</code> flag ushers an era of flash-uploading the origin file and instantly yielding, delegating the geometric variants compilation to deferred, non-critical background jobs.</p>
+                    </div>
+                    <div class="term-box" style="border-left-color: var(--danger)">
+                        <h4 style="color:#fff; margin-bottom: 0.5rem">4. Telemetry Integrations (Observability)</h4>
+                        <p class="text-muted" style="margin-bottom: 1rem;">Apply <code>WithHook(Prometheus)</code> for realtime fusion with external monitoring relays; charting every pulse, lag, and drop in the upload lattice down to the millisecond without corrupting core code paths.</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Deep Architecture Flow -->
+            <section id="architecture">
+                <div class="section-header">
+                    <h2><i data-lucide="cpu"></i> Architecture & Component Decoupling</h2>
+                    <p>For systems architects, this blueprint—synchronized with the ADR-001 specification—supplies a strict mapping of component isolation and interfacial transit strategy.</p>
+                </div>
+
+                <div class="arch-diagram">
+                    <pre class="mermaid">
+flowchart TD
+    classDef core fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc
+    classDef interface fill:#312e81,stroke:#4f46e5,stroke-width:2px,stroke-dasharray: 5 5,color:#e0e7ff
+    classDef impl fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#dcfce7
+
+    API[Client Integrator]:::core
+    
+    subgraph core_sub [Mediaforge Autonomous Core]
+        Client([mediaforge.Client]):::core
+        Pipeline[Compression & Analytics Pipeline<br>validate, digest, encode]:::core
+        Retry[storage.WithRetry<br>Exponential Backoff Heuristics]:::core
+    end
+
+    subgraph interfaces_sub [Abstracted Contract Layers]
+        StorageI{ObjectStorage Interface}:::interface
+        SignerI{URLSigner Interface}:::interface
+        EncoderI{ImageEncoder Interface}:::interface
+    end
+
+    subgraph providers_sub [Target Implementations]
+        Bunny[Bunny.net Native Adapter]:::impl
+        S3[AWS S3 SDK Integration]:::impl
+        CWebP[OS cwebp Binary Tool]:::impl
+    end
+
+    API --> Client
+    Client --> Pipeline
+    Client --> Retry
+    Pipeline --> EncoderI
+    Retry --> StorageI
+    Client --> SignerI
+
+    StorageI -.-> Bunny
+    StorageI -.-> S3
+    SignerI -.-> Bunny
+    SignerI -.-> S3
+    EncoderI -.-> CWebP
+                    </pre>
+                </div>
+                
+                <h3 style="margin-top: 4rem; margin-bottom:1.5rem">Sequential Data Injection Pipeline</h3>
+                
+                <div class="arch-diagram">
+                    <pre class="mermaid">
+sequenceDiagram
+    participant User as Integrator Service
+    participant Lib as Upload() Coordinator
+    participant Proc as Analytics Subsystem
+    participant Stor as Cloud Backbone
+
+    User->>Lib: Upload(ctx, payload_bytes)
+    
+    rect rgba(99, 102, 241, 0.15)
+        Note over Lib,Proc: 1. Processing Heuristics
+        Lib->>Proc: Ignite File Validators
+        Proc-->>Lib: Hash Checksum & WebP Bytestreams
+    end
+
+    rect rgba(16, 185, 129, 0.1)
+        Note over Lib,Stor: 2. Network Transit Routine (Sequential Loop)
+        Lib->>Stor: Dispatch Original File (With 3x Retry Wrap)
+        Stor-->>Lib: Synchronization Success
+        
+        loop Target Derived Variants
+            Lib->>Stor: Dispatch Variant Iteration (With Retry Wrap)
+            alt Critical Network Fault Exception
+                Lib->>Stor: Trigger CleanupPartialUpload() Rollback Command
+                Lib-->>User: Abort & Bubble Down ErrStorage Exception
+            end
+        end
+    end
+
+    Lib-->>User: System Status [Resolved: PendingAsset Built]
+                    </pre>
+                </div>
+            </section>
+
+            <!-- API Reference -->
+            <section id="api">
+                <div class="section-header">
+                    <h2><i data-lucide="book-open"></i> Exhaustive API Reference</h2>
+                    <p>The consolidated index of all engine operational methods, encompassing payload signatures and structural alerts.</p>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: var(--primary)">Core Operation Methods</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method Name</th>
+                                <th>Parameter Signature</th>
+                                <th>Standard Yield (Returns)</th>
+                                <th>Functional Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code style="color:var(--text-main)">Upload</code></td>
+                                <td>ctx, tenantID, []byte</td>
+                                <td>*PendingAsset, error</td>
+                                <td>Analyzes the full byte array housed in active memory, subsequently processing and aggressively committing it to cloud shelters.</td>
+                            </tr>
+                            <tr>
+                                <td><code style="color:var(--text-main)">UploadReader</code></td>
+                                <td>ctx, tenantID, io.Reader</td>
+                                <td>*PendingAsset, error</td>
+                                <td>Gradually ingests massive, sustained payloads via robust stream manipulation to avert sheer memory detonation.</td>
+                            </tr>
+                            <tr>
+                                <td><code style="color:var(--text-main)">GetSignedURL</code></td>
+                                <td>storagePath, variants[], ttl</td>
+                                <td>*SignedURLSet, error</td>
+                                <td>Synthesizes cryptographic cloud pointers restricted by decay limits intended solely for authenticated client use.</td>
+                            </tr>
+                            <tr>
+                                <td><code style="color:var(--text-main)">Delete</code></td>
+                                <td>ctx, tenantID, filename, variants[]</td>
+                                <td>[]DeleteResult, error</td>
+                                <td>Invades and eradicates the cloud existence of an asset alongside all downstream variants with precise deletion logs.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 3rem; margin-bottom: 1rem; color: var(--danger)">Structured Disruption Categories (Errors)</h3>
+                <p style="color:var(--text-muted); margin-bottom:1.5rem">In legacy of <code>*mediaforge.Error</code>, the system sheds arcane string faults and surfaces structured anomalies tailored for programmatic handling heuristics.</p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type Cast (Category)</th>
+                                <th>Common Genesis Condition</th>
+                                <th>Auto-Retry Target Factor?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CategoryValidation</code></td>
+                                <td>The dispatched entity eclipses limits, or the core bypasses authorized MIME segments.</td>
+                                <td style="color:var(--danger)">Unrecoverable Exception - (Fail Fast 400)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CategoryProcessing</code></td>
+                                <td>A catastrophic fault logged within the CWebP processing daemon.</td>
+                                <td style="color:var(--danger)">Unrecoverable Exception - (System Fault 500)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CategoryStorage</code></td>
+                                <td>Cloud deployment stall precipitated by momentary Cloudflare congestion or S3 networking drop.</td>
+                                <td style="color:var(--success)">High Recovery Index - (Safe Retry Trigger 503)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Lightbox Container -->
+    <div class="lightbox" id="diagram-lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()"><i data-lucide="x"></i></button>
+        <div class="lightbox-content" id="lightbox-body">
+            <!-- SVG will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        // Init Icons & Syntax Highlighting
+        lucide.createIcons();
+        hljs.highlightAll();
+
+        // Init Mermaid with Dark Theme
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            fontFamily: 'JetBrains Mono',
+            flowchart: { curve: 'basis' }
+        });
+
+        // Tabs Logic
+        function switchTab(evt, tabName) {
+            const tabsContainer = evt.currentTarget.closest('.tabs');
+            tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            tabsContainer.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            evt.currentTarget.classList.add('active');
+            tabsContainer.querySelector(`#${tabName}`).classList.add('active');
+        }
+
+        // Scroll Logic for Conceptual Journey Sidebar
+        const stepCards = document.querySelectorAll('.step-card');
+        const vSlides = document.querySelectorAll('.v-slide');
+
+        const observerVis = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const visTarget = entry.target.getAttribute('data-vis');
+                    stepCards.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
+                    vSlides.forEach(v => v.classList.remove('active'));
+                    document.getElementById(`v-${visTarget}`).classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px' });
+
+        stepCards.forEach(card => observerVis.observe(card));
+
+        // Scroll Logic for Sticky Nav Links
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                if (pageYOffset >= section.offsetTop - 300) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Diagram Lightbox Logic
+        setTimeout(() => {
+            const diagrams = document.querySelectorAll('.arch-diagram');
+            diagrams.forEach(diag => {
+                // Add styling hint to the container
+                const hint = document.createElement('div');
+                hint.className = 'zoom-hint';
+                hint.innerHTML = '<i data-lucide="maximize-2" style="width:18px;height:18px;"></i> View Full Diagram';
+                diag.appendChild(hint);
+                lucide.createIcons({root: hint});
+
+                diag.addEventListener('click', () => {
+                    const svg = diag.querySelector('svg');
+                    if(svg) {
+                        const lightbox = document.getElementById('diagram-lightbox');
+                        const body = document.getElementById('lightbox-body');
+                        body.innerHTML = '';
+                        
+                        // Clone the SVG
+                        const clone = svg.cloneNode(true);
+                        clone.style.maxWidth = '100%';
+                        clone.style.width = '100%';
+                        clone.style.minHeight = '70vh';
+                        body.appendChild(clone);
+                        
+                        lightbox.classList.add('active');
+                        document.body.style.overflow = 'hidden'; 
+                    }
+                });
+            });
+        }, 1200);
+
+        function closeLightbox() {
+            document.getElementById('diagram-lightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close events
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+        document.getElementById('diagram-lightbox').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeLightbox();
+        });
+
+    </script>
+</body>
+</html>

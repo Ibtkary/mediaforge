@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mediastore | الهيكلية ومسار البيانات (Architecture & Flow)</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Mermaid -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #0f1115;
+            --bg-surface: #181a20;
+            --bg-surface-hover: #22252d;
+            --primary: #4f46e5;       /* Indigo */
+            --primary-glow: rgba(79, 70, 229, 0.4);
+            --secondary: #0ea5e9;     /* Sky */
+            --accent: #f59e0b;        /* Amber */
+            --success: #10b981;       /* Emerald */
+            --danger: #ef4444;        /* Rose */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #475569;
+            --border: #27272a;
+            --grid-color: rgba(255, 255, 255, 0.03);
+            --font-ar: 'Cairo', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-ar);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            line-height: 1.7;
+            /* Engineering grid background */
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        h1, h2, h3, h4 { font-weight: 700; }
+        code { font-family: var(--font-code); direction: ltr; }
+
+        /* Navigation / Header */
+        header.topbar {
+            background: rgba(15, 17, 21, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .version-badge {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: var(--font-code);
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Deep Dive */
+        .hero {
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Engineering Section */
+        .eng-section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .eng-section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .eng-section-header i { color: var(--primary); }
+
+        /* Architecture Diagram Container */
+        .arch-diagram-container {
+            background: var(--bg-surface-hover);
+            border-radius: 8px;
+            padding: 2rem;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Flow Timeline */
+        .flow-timeline {
+            position: relative;
+            padding-right: 2rem;
+            margin-top: 3rem;
+        }
+
+        .flow-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 14px; /* Center of the 30px icon */
+            width: 2px;
+            background: var(--border);
+        }
+
+        .flow-step {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .flow-icon {
+            position: absolute;
+            right: -2rem;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-base);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .flow-icon i {
+            width: 16px; 
+            height: 16px;
+            color: var(--primary);
+        }
+
+        .flow-content {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-right: 2rem;
+        }
+
+        .flow-content h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flow-en {
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            color: var(--secondary);
+            background: rgba(14, 165, 233, 0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        /* Technical Specs Grid */
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .spec-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            border-right: 3px solid var(--text-dim);
+        }
+        .spec-card.core { border-right-color: var(--primary); }
+        .spec-card.io { border-right-color: var(--accent); }
+
+        .spec-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-value {
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            word-break: break-all;
+        }
+
+        /* Callouts / Warnings */
+        .callout {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            margin-top: 1rem;
+        }
+
+        .callout i { color: var(--danger); flex-shrink: 0; }
+        .callout p { margin: 0; font-size: 0.95rem; }
+
+        .callout.info {
+            background: rgba(14, 165, 233, 0.05);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+        .callout.info i { color: var(--secondary); }
+
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="logo-area">
+            <i data-lucide="cpu" style="width: 24px; height: 24px; color: var(--primary)"></i>
+            <span>Mediastore | Architecture</span>
+        </div>
+        <div class="version-badge">ADR-001 (Refactored)</div>
+    </header>
+
+    <div class="container">
+        
+        <div class="hero">
+            <h1>البنية التحتية ومسار البيانات</h1>
+            <p>تحليل هندسي عميق (Deep Dive) لكيفية بناء مكتبة Mediastore طبقاً لوثيقة التصميم المعمارية (ADR-001). توضيح للمكونات، الواجهات (Interfaces)، ودورة حياة الصورة برمجياً.</p>
+        </div>
+
+        <!-- Section 1: Component Architecture -->
+        <section class="eng-section">
+            <div class="eng-section-header">
+                <i data-lucide="blocks" style="width: 28px; height: 28px;"></i>
+                <h2>هيكلية المكونات (Component Architecture)</h2>
+            </div>
+            
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">
+                تعتمد المكتبة على مبدأ "تجريد مزودي الخدمة" (Provider Abstraction) لضمان عدم الارتباط الوثيق بمزود واحد (مثل S3 أو Bunny). يعتمد القلب البرمجي (Core) على 3 واجهات برمجية صغيرة صريحة.
+            </p>
+
+            <div class="arch-diagram-container">
+                <pre class="mermaid">
+flowchart TD
+    %% Define Styles
+    classDef core fill:#1e293b,stroke:#475569,stroke-width:2px,color:#f8fafc
+    classDef interface fill:#312e81,stroke:#4f46e5,stroke-width:2px,stroke-dasharray: 5 5,color:#e0e7ff
+    classDef impl fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#dcfce7
+    classDef external fill:#78350f,stroke:#d97706,stroke-width:2px,color:#fef3c7
+
+    %% Nodes
+    API[Consumer Code / JMS Backend]:::external
+    
+    subgraph core_sub [Mediaforge Core]
+        Client([mediaforge.Client]):::core
+        Pipeline[Processing Pipeline<br>validate, hash, encode]:::core
+        Retry[storage.WithRetry<br>Exponential Backoff]:::core
+    end
+
+    subgraph interfaces_sub [Interfaces]
+        StorageI{ObjectStorage<br>Interface}:::interface
+        SignerI{URLSigner<br>Interface}:::interface
+        EncoderI{ImageEncoder<br>Interface}:::interface
+    end
+
+    subgraph providers_sub [Providers Implementation]
+        Bunny[Bunny.net Adapter]:::impl
+        S3[AWS S3 Provider pkg]:::impl
+        CWebP[cwebp binary]:::impl
+    end
+
+    %% Flow
+    API -->|Upload / GetSignedURL| Client
+    Client --> Pipeline
+    Client --> Retry
+    
+    Pipeline --> EncoderI
+    Retry --> StorageI
+    Client --> SignerI
+
+    StorageI -.-> Bunny
+    StorageI -.-> S3
+    
+    SignerI -.-> Bunny
+    SignerI -.-> S3
+    
+    EncoderI -.-> CWebP
+                </pre>
+            </div>
+
+            <div class="specs-grid">
+                <div class="spec-card core">
+                    <div class="spec-title">لماذا واجهات صغيرة جداً؟ (Small Interfaces)</div>
+                    <div class="spec-value" style="font-family: var(--font-ar); line-height: 1.5">تطبيقاً لمبدأ Interface Segregation. S3 لا يحتاج لمعرفة طريقة التوقيع (Signing) الخاصة بـ Bunny. كل مزود يبرمج فقط الوظائف التي يمتلكها.</div>
+                </div>
+                <div class="spec-card core">
+                    <div class="spec-title">الإعداد الديناميكي (Functional Options)</div>
+                    <div class="spec-value">WithRetries(3)<br>WithMaxFileSize(10MB)<br>WithDedup(true)</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section 2: Upload Data Flow -->
+        <section class="eng-section">
+            <div class="eng-section-header">
+                <i data-lucide="git-commit" style="width: 28px; height: 28px;"></i>
+                <h2>مسار البيانات الدقيق لعملية الرفع (Upload Flow)</h2>
+            </div>
+
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">
+                تتبع الصورة المسار التالي حرفياً منذ استلام الـ (Bytes) وحتى تخزينها في الـ (Bucket) السحابي، استناداً إلى الكود في `upload.go`.
+            </p>
+
+            <div class="arch-diagram-container">
+                <pre class="mermaid">
+sequenceDiagram
+    participant User as Consumer (API)
+    participant Lib as Upload() Core
+    participant Proc as Processing Pipeline
+    participant Stor as ObjectStorage
+    participant Hook as Observability Hooks
+
+    User->>Lib: Upload(ctx, tenant, data []byte)
+    
+    rect rgba(79, 70, 229, 0.15)
+        Note over Lib,Proc: 1. المعالجة الداخلية (Processing)
+        Lib->>Proc: Process(data)
+        Proc->>Proc: Validate MIME & Size limit
+        Proc->>Proc: SHA-256 Hash (Content Hash)
+        Proc->>Proc: Decode to image.Image
+        Proc->>Proc: Encode Original to WebP
+        Proc-->>Lib: ProcessedResult {Variants, Hash}
+    end
+
+    rect rgba(245, 158, 11, 0.08)
+        Note over Lib,Stor: 2. حماية المساحة (Dedup Check) - Opt-in
+        opt WithDedup == true
+            Lib->>Stor: Exists(storagePath)
+            Stor-->>Lib: true
+            Lib-->>User: PendingAsset (Return Early, No Upload!)
+        end
+    end
+
+    rect rgba(16, 185, 129, 0.1)
+        Note over Lib,Stor: 3. الرفع التتابعي (Sequential Upload)
+        
+        Hook->>Hook: BeforeUpload()
+        Lib->>Stor: Upload Original WebP (WithRetry)
+        Stor-->>Lib: Success
+        Hook->>Hook: AfterUpload(duration, err)
+
+        loop For each Variant (thumb, medium, large)
+            alt SmartVariantSkip && src < variant.Max
+                Note over Lib: Skip processing this variant
+            else
+                Hook->>Hook: BeforeUpload()
+                Lib->>Stor: Upload Variant WebP (WithRetry)
+                alt Upload Fails
+                    Lib->>Stor: cleanupPartialUpload() (Rollback)
+                    Stor-->>Lib: Deleted partial files
+                    Lib-->>User: ErrStorage
+                end
+                Stor-->>Lib: Success
+                Hook->>Hook: AfterUpload(duration, err)
+            end
+        end
+    end
+
+    Lib-->>User: PendingAsset (Success)
+                </pre>
+            </div>
+
+            <div class="flow-timeline">
+                
+                <div class="flow-step">
+                    <div class="flow-icon"><i data-lucide="shield"></i></div>
+                    <div class="flow-content">
+                        <h3>1. الفحص والحماية <span class="flow-en">Validate Limits</span></h3>
+                        <p>تتم قراءة بايتات الملف (Magic Bytes) للتأكد الحتمي من أن الملف صورة. إذا تجاوز الحجم `MaxFileSize` يتم إحباط العملية فوراً بوأدها (Fast Fail).</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-icon"><i data-lucide="cpu"></i></div>
+                    <div class="flow-content">
+                        <h3>2. البصمة والتحويل <span class="flow-en">Hash & Encode</span></h3>
+                        <p>تُحسب بصمة `SHA-256` لبناء مسار فريد للملف. لا يتم الاعتماد على اسم الملف من المستخدم. يتم بعد ذلك تمرير الصورة إلى `ImageEncoder` (وهو `cwebp` افتراضياً) لتحويل النسخة الأصلية للـ WebP.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-icon"><i data-lucide="target"></i></div>
+                    <div class="flow-content">
+                        <h3>3. فحص التكرار (اختياري) <span class="flow-en">Dedup Check</span></h3>
+                        <p>لو تم تفعيل <code>WithDedup(true)</code>، يرسل النظام طلب `HEAD` للـ Storage ليتأكد ما إذا كانت الصورة موجودة مسبقاً بناءً على الـ Hash. إذا كانت موجودة، يعود فوراً دون رفع (Cost Optimization).</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-icon"><i data-lucide="refresh-cw"></i></div>
+                    <div class="flow-content">
+                        <h3>4. الرفع التتابعي والتعافي الآلي <span class="flow-en">Sequential Retry Pipeline</span></h3>
+                        <p>يتم رفع الملفات برمجياً "ملفاً تلو الآخر" (Sequential) لتجنب استهلاك الذاكرة وعدم تعقيد عملية المعالجة. يتم تغليف عملية الرفع بـ <code>storage.WithRetry</code> والذي يطبق خوارزمية <strong>Exponential Backoff + Jitter</strong> للتعافي من الانقطاعات المؤقتة في الشبكة.</p>
+                        
+                        <div class="callout info">
+                            <i data-lucide="info"></i>
+                            <p><strong>تنظيف الفشل (Rollback):</strong> إذا فشل رفع النسخة الثالثة (Large مثلاً)، يستدعي النظام <code>cleanupPartialUpload()</code> ليحذف النسخة الأصلية والنسخ المصغرة التي تم رفعها بنجاح للتو، لضمان عدم وجود ملفات يتيمة (Orphaned Files) في التخزين السحابي.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-icon"><i data-lucide="activity"></i></div>
+                    <div class="flow-content">
+                        <h3>5. المراقبة والقياس <span class="flow-en">Observability Hooks</span></h3>
+                        <p>كل عملية رفع تنادي <code>BeforeUpload</code> و <code>AfterUpload</code> المخصصة في الواجهة <code>Hook interface</code>. يمكن حقن هذا لربطه مع Prometheus أو Datadog لقياس سرعات الرفع لكل Variant وتسجيل الأخطاء بدون تعديل كود المكتبة.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 3: Design Decisions Overview -->
+        <section class="eng-section" style="margin-bottom: 2rem;">
+            <div class="eng-section-header">
+                <i data-lucide="gavel" style="width: 28px; height: 28px;"></i>
+                <h2>قرارات التصميم المعماري (ADR Summary)</h2>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="padding: 1rem; color: var(--text-muted);">القرار (Decision)</th>
+                        <th style="padding: 1rem; color: var(--text-muted);">السبب (Reasoning)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem; font-weight: 600;">مركزية إعادة المحاولة (Central Retry)</td>
+                        <td style="padding: 1rem; color: var(--text-muted);">نظام <code>WithRetry</code> موجود في الـ Core، والمزود (Provider) يكتفي بإرجاع خطأ. هذا يوحد خوارزمية הـ Backoff لكل المزودين ويمنع تكرار الكود المعقد.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem; font-weight: 600;">النسخ التتابعية (Sequential, not Concurrent)</td>
+                        <td style="padding: 1rem; color: var(--text-muted);">رغم أن رفع 4 ملفات في نفس الوقت أسرع، إلا أن الرفع التتابعي (Sequential) يجعل تنظيف الملفات عند الفشل آمن 100% ويمنع تسريب الذاكرة (Memory Spikes) في أوقات الضغط العالي.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 1rem; font-weight: 600;">توسعة الأخطاء المُنظمة (Structured Errors)</td>
+                        <td style="padding: 1rem; color: var(--text-muted);">لا نستخدم أخطاء نصية بسيطة بل كائن <code>*Error</code> مع <code>Category</code> (مثل CategoryValidation). يُمكن الكود المستهلك من اتخاذ قرار بناءً على نوع الخطأ بدقة.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark', // Using the dark theme inherently provided by Mermaid
+            fontFamily: 'JetBrains Mono',
+            flowchart: {
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                showSequenceNumbers: true,
+                noteMargin: 10,
+                boxMargin: 10
+            }
+        });
+    </script>
+</body>
+</html>
