@@ -159,6 +159,13 @@ go get github.com/Ibtkary/mediaforge
 go get github.com/Ibtkary/mediaforge/providers/s3
 ```
 
+### مع Cloudflare R2
+
+```bash
+go get github.com/Ibtkary/mediaforge
+go get github.com/Ibtkary/mediaforge/providers/r2
+```
+
 ### المتطلبات
 
 | المتطلب | مطلوب؟ | ملاحظة |
@@ -254,6 +261,57 @@ func main() {
         log.Fatal(err)
     }
     log.Printf("uploaded to S3: %s", asset.StoragePath)
+}
+```
+
+### طريقة 3: مع Cloudflare R2 (private bucket + presigned URLs)
+
+> R2 متوافق مع S3 API. الـ bucket يفضل private، والمكتبة تولد presigned URLs مؤقتة للعرض.
+
+```go
+package main
+
+import (
+    "context"
+    "log"
+    "os"
+    "time"
+
+    "github.com/Ibtkary/mediaforge"
+    r2provider "github.com/Ibtkary/mediaforge/providers/r2"
+)
+
+func main() {
+    client, err := r2provider.NewClient(context.Background(), r2provider.Config{
+        AccountID:       os.Getenv("R2_ACCOUNT_ID"),
+        AccessKeyID:     os.Getenv("R2_ACCESS_KEY_ID"),
+        SecretAccessKey: os.Getenv("R2_SECRET_ACCESS_KEY"),
+        Bucket:          os.Getenv("R2_BUCKET"),
+        // اختياري. اتركه فارغاً لاستخدام:
+        // https://<account_id>.r2.cloudflarestorage.com
+        Endpoint: os.Getenv("R2_ENDPOINT"),
+    },
+        mediaforge.WithMaxFileSize(10 * 1024 * 1024),
+        mediaforge.WithVariants(mediaforge.DefaultVariants()),
+        mediaforge.WithDedup(true),
+        mediaforge.WithSmartVariantSkip(true),
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    imageData, _ := os.ReadFile("product.jpg")
+    asset, err := client.Upload(context.Background(), "store1", imageData)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    urls, err := client.GetSignedURL(asset.StoragePath, []string{"thumb", "medium", "large"}, time.Hour)
+    if err != nil {
+        log.Fatal(err)
+    }
+    log.Printf("uploaded to R2: %s", asset.StoragePath)
+    log.Printf("signed original: %s", urls.Original)
 }
 ```
 
@@ -608,6 +666,7 @@ client, _ := mediaforge.NewClient(storage, signer,
 | `New(Config)` | Bunny.net فقط (legacy) | نعم |
 | `NewClient(storage, signer, opts...)` | أي provider | لو مفيش custom encoder |
 | `NewBunnyClient(zone, key, cdn, cdnKey, opts...)` | Bunny + options | لو مفيش custom encoder |
+| `r2.NewClient(ctx, Config, opts...)` | Cloudflare R2 + options | لو مفيش custom encoder |
 
 ### Methods
 

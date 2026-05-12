@@ -38,6 +38,12 @@ For AWS S3:
 go get github.com/Ibtkary/mediaforge/providers/s3
 ```
 
+For Cloudflare R2:
+
+```bash
+go get github.com/Ibtkary/mediaforge/providers/r2
+```
+
 ### Prerequisites
 
 - Go 1.21+
@@ -78,6 +84,39 @@ urls, err := client.GetSignedURL(asset.StoragePath,
 // Delete
 results, err := client.Delete(ctx, "tenant1", "e477ecfe_0cf31a90.webp",
     []string{"thumb", "medium", "large"})
+```
+
+### With Cloudflare R2
+
+R2 uses Cloudflare's S3-compatible API. Keep the bucket private and serve images
+through presigned URLs.
+
+```go
+import (
+    "context"
+    "os"
+    "time"
+
+    "github.com/Ibtkary/mediaforge"
+    r2provider "github.com/Ibtkary/mediaforge/providers/r2"
+)
+
+client, err := r2provider.NewClient(context.Background(), r2provider.Config{
+    AccountID:       os.Getenv("R2_ACCOUNT_ID"),
+    AccessKeyID:     os.Getenv("R2_ACCESS_KEY_ID"),
+    SecretAccessKey: os.Getenv("R2_SECRET_ACCESS_KEY"),
+    Bucket:          os.Getenv("R2_BUCKET"),
+    // Endpoint is optional. Leave empty to use:
+    // https://<account_id>.r2.cloudflarestorage.com
+    Endpoint: os.Getenv("R2_ENDPOINT"),
+}, mediaforge.WithVariants(mediaforge.DefaultVariants()))
+if err != nil {
+    return err
+}
+
+asset, err := client.Upload(ctx, "tenant1", imageBytes)
+urls, err := client.GetSignedURL(asset.StoragePath,
+    []string{"thumb", "medium", "large"}, time.Hour)
 ```
 
 ### With Bunny.net
@@ -140,6 +179,7 @@ client, _ := mediaforge.NewClient(storage, signer,
 | Provider | Package | Storage | Signed URLs |
 |----------|---------|---------|-------------|
 | **AWS S3** | `mediaforge/providers/s3` | S3 PutObject | S3 Presigned URLs |
+| **Cloudflare R2** | `mediaforge/providers/r2` | S3-compatible PutObject | S3-compatible Presigned URLs |
 | **Bunny.net** | built-in | Bunny Storage API | Bunny CDN Tokens |
 | **Custom** | implement `ObjectStorage` + `URLSigner` | your choice | your choice |
 
